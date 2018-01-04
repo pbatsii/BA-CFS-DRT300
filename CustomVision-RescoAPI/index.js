@@ -70,14 +70,39 @@ function sendToCustomVision(data) {
 
            
            
-           var oReq = new XMLHttpRequest();
+           /* the below is the standard way of creating a HTTP POST request, however it doesn't work under Resco when run under Windows 10. 
+		   It has to do with increased security model in the Windows 10 Creators Update.
+		   The workaround provided from Resco for this is to use the wrapper in JSBridge.js.
+		   */
+		   
+		   /*
+		   var oReq = new XMLHttpRequest();
            oReq.onload = reqListener;
            oReq.onerror = reqError;
            oReq.open('post', 'https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/734e7d96-ba47-40e1-85bd-b73f3458bdd3/image?iterationId=ec61b45c-d5ad-4e5f-a103-d4dbbe99d92e', true);
            oReq.setRequestHeader('Prediction-Key', 'cf000a1bde794e00a6ae1b703cb9f568');
            oReq.setRequestHeader('Content-Type', 'application/octet-stream');
            oReq.send(b64toBlob(data, 'image/png'));
-           
+           */
+	   
+            var headers = {
+                "Prediction-Key": "cf000a1bde794e00a6ae1b703cb9f568",
+			}
+
+            var request = new MobileCRM.Services.HttpWebRequest();
+            request.headers = headers;
+            request.method = "POST";
+            request.contentType = 'application/octet-stream';
+            
+            request.setBody(b64toBlob(data, 'image/png'), "UTF-8");
+
+            request.send("https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/734e7d96-ba47-40e1-85bd-b73f3458bdd3/image?iterationId=ec61b45c-d5ad-4e5f-a103-d4dbbe99d92e", function (response) {
+                MobileCRM.bridge.alert(JSON.stringify(response));
+            }, null);
+
+
+		   
+		   
        },
        function (err) {
            MobileCRM.bridge.alert("An error occurred: " + err);
