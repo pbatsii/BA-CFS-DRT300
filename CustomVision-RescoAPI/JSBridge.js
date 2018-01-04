@@ -841,7 +841,20 @@
 					this.regarding = regarding;
 					this.outputFolder = null;
 				},
+				HttpWebRequest: function () {
+				    /// <summary>[v10.4] Instance of http web request.</summary>
+				    /// <field name="method" type="String">The HTTP method to use for the request (e.g. "POST", "GET", "PUT").</field>
+				    /// <field name="headers" type="Object">An object of additional header key/value pairs to send along with requests using the HttpWebReqest.</field>
+				    /// <field name="contentType" type="String">Sending data content type.</field>
+				    /// <field name="body" type="String">The body content of HttpWebRequest.</field>
+				    /// <field name="encoding" type="String">The encoding type (default: UTF-8), e.g. Base64, ASCII, UTF-8 </field>
 
+				    this.method = "";
+				    this.headers = {};
+				    this.contentType = "";
+				    this._body = "";
+				    this._encdoing = "UTF-8";
+				},
 				SynchronizationResult: function (syncResult) {
 					/// <summary>[v8.1] Represents the synchronization result.</summary>
 					/// <field name="newCustomizationReady" type="Boolean">Indicates whether the new customization is ready.</field>
@@ -4538,7 +4551,22 @@
 			});
 			MobileCRM.bridge.command("downloadReport", params, success, failed, scope);
 		};
+		MobileCRM.Services.HttpWebRequest.prototype.send = function (url, callback, scope) {
+		    /// <summary>[v10.4] Allow to send http web request against an HTTP server.</summary>
+		    /// <param name="url" type="String">The Url of server where HTTP request will be sent.</param>
+			/// <param name="callback" type="function(response)">A callback function that is called with the web response having &quot;responseCode&quot; and &quot;responseText&quot; properties.</param>
+		    /// <param name="scope" type="Object">The scope for callbacks.</param>
 
+		    var data = { url: url, method: this.method, headers: JSON.stringify(this.headers), body: this._body, encoding: this._encoding, contentType: this.contentType };
+		    MobileCRM.bridge.command("sendHttpRequest", JSON.stringify(data), callback, null, scope);
+		};
+		MobileCRM.Services.HttpWebRequest.prototype.setBody = function (body, encoding) {
+		    /// <summary>[v10.4] Set content body of http web request.</summary>
+		    /// <param name="body">The body content.</param>
+		    /// <param name="encoding">The encoding (e.g. UTF-8, ASCII, Base64)</param>
+		    this._body = body;
+		    this._encoding = encoding;
+		}
 		/**************************************/
 		// Platform dependent implementation   /
 		// MobileCRM.bridge singleton creation /
