@@ -85,8 +85,10 @@ function sendToCustomVision(data) {
            oReq.send(b64toBlob(data, 'image/png'));
            */
 	   
+			var CUSTOMVISION-URL = 'https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/734e7d96-ba47-40e1-85bd-b73f3458bdd3/image?iterationId=f74cac57-aaea-4df0-b8f9-74a6d49665bb';
+			var PREDICTION-KEY = 'cf000a1bde794e00a6ae1b703cb9f568';
             var headers = {
-                "Prediction-Key": "cf000a1bde794e00a6ae1b703cb9f568",
+                "Prediction-Key": PREDICTION-KEY
 			}
 
             var request = new MobileCRM.Services.HttpWebRequest();
@@ -96,7 +98,7 @@ function sendToCustomVision(data) {
             
             request.setBody(b64toBlob(data, 'image/png'), "UTF-8");
 
-            request.send("https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/734e7d96-ba47-40e1-85bd-b73f3458bdd3/image?iterationId=ec61b45c-d5ad-4e5f-a103-d4dbbe99d92e", function (response) {
+            request.send(CUSTOMVISION-URL, function (response) {
                 MobileCRM.bridge.alert(JSON.stringify(response));
             }, null);
 
