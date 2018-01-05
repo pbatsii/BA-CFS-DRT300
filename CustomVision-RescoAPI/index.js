@@ -69,12 +69,14 @@ function sendToCustomVision(data) {
            }
 
            
-           
+           var PREDICTION_KEY = 'cf000a1bde794e00a6ae1b703cb9f568';
+			var CV_URL = 'https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/734e7d96-ba47-40e1-85bd-b73f3458bdd3/image?iterationId=f74cac57-aaea-4df0-b8f9-74a6d49665bb';
+			
            var oReq = new XMLHttpRequest();
            oReq.onload = reqListener;
            oReq.onerror = reqError;
-           oReq.open('post', 'https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/734e7d96-ba47-40e1-85bd-b73f3458bdd3/image?iterationId=ec61b45c-d5ad-4e5f-a103-d4dbbe99d92e', true);
-           oReq.setRequestHeader('Prediction-Key', 'cf000a1bde794e00a6ae1b703cb9f568');
+           oReq.open('post', CV_URL, true);
+           oReq.setRequestHeader('Prediction-Key', PREDICTION_KEY);
            oReq.setRequestHeader('Content-Type', 'application/octet-stream');
            oReq.send(b64toBlob(data, 'image/png'));
            
