@@ -201,28 +201,16 @@ function onAddToDB() {
             } 
             else
             if (result.Status != "" && result.Id) {
+
                 $("#ProjectTrainError").css('display', 'none');
                 $("#ProjectTrainOK").css('display', 'block');
-
-                //MobileCRM.bridge.alert("project training status: " + result.Status + "; Id:" + result.Id);
-
-                var request = {
-                    "IsDefault" : true
-                };
-
-                //set the iteration as default
-                var oReq = new XMLHttpRequest();
-                oReq.onload = updateIteration;
-                oReq.onerror = updateIterationError;
-                var URL = TRAINING_URL + "/" + REQUEST_UPDATEITERATION + "/" + result.Id;
-                oReq.open('PATCH', URL, true);
-                oReq.setRequestHeader('Training-key', TRAINING_KEY);
-                oReq.setRequestHeader('Content-Type', 'application/json');
-                oReq.send(JSON.stringify(request));
-
-                //MobileCRM.bridge.alert(URL);
-                //MobileCRM.bridge.alert(JSON.stringify(request));
-                
+                   
+                //a bit problematic is that we cannot call this until the iteration has been trained. on the other hand, 
+                //there is no easy way apart from polling to find out when iteration is trained. 
+                //quick workaround: wait 5 sec.
+                setTimeout(function() {
+                    setIterationAsDefault(result);               
+                }, 5000);
                 
             }
         }
@@ -230,6 +218,29 @@ function onAddToDB() {
 
     function trainProjectError() {
         MobileCRM.bridge.alert(this.responseText);        
+    }
+
+    function setIterationAsDefault(result)
+    {
+        //MobileCRM.bridge.alert("project training status: " + result.Status + "; Id:" + result.Id);
+
+        var request = {
+            "IsDefault" : true
+        };
+
+        //set the iteration as default
+        var oReq = new XMLHttpRequest();
+        oReq.onload = updateIteration;
+        oReq.onerror = updateIterationError;
+        var URL = TRAINING_URL + "/" + REQUEST_UPDATEITERATION + "/" + result.Id;
+        oReq.open('PATCH', URL, true);
+        oReq.setRequestHeader('Training-key', TRAINING_KEY);
+        oReq.setRequestHeader('Content-Type', 'application/json');
+        oReq.send(JSON.stringify(request));
+
+        //MobileCRM.bridge.alert(URL);
+        //MobileCRM.bridge.alert(JSON.stringify(request));
+
     }
 
     function updateIteration() {
