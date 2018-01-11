@@ -207,10 +207,10 @@ function onAddToDB() {
                    
                 //a bit problematic is that we cannot call this until the iteration has been trained. on the other hand, 
                 //there is no easy way apart from polling to find out when iteration is trained. 
-                //quick workaround: wait 5 sec.
+                //quick workaround: wait 12 sec.
                 setTimeout(function() {
                     setIterationAsDefault(result);               
-                }, 5000);
+                }, 12000);
                 
             }
         }
