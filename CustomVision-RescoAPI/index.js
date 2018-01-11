@@ -244,7 +244,7 @@ function onAddToDB() {
     }
 
     function updateIteration() {
-        MobileCRM.bridge.alert(this.responseText);
+        //MobileCRM.bridge.alert(this.responseText);
         $("#UpdateIterationOK").css('display', 'block');
     }
 
