@@ -15,7 +15,6 @@
 	<script src="jquery-3.2.1.min.js"></script>
 	<script src="index.js" type="text/javascript"></script>
 	<link rel="stylesheet" type="text/css" href="listview.css">
-	<link rel="stylesheet" type="text/css" href="button.css">
 	
 
 </head>
@@ -27,6 +26,7 @@
 		</div>
 		<div class="section">
 			<button class="btn btn-lg btn-primary" id="myButton" onclick="onTakePhoto()">Make a photo!</button>
+			
 		</div>
 
 		
@@ -34,9 +34,7 @@
 			<img id="imageplaceholder" class="img-responsive"></img>
 		</div>
 
-		<div class="buttons">
-		<button class="fill">Fill In</button>
-	</div>
+		
 		<div class="section" style="display:none" id="PostRecognitionActions">
 			<ul id="RecognitionResult" class="btn btn-lg"> </ul>
 			<button class="btn btn-lg btn-primary" id="showRelevantInfo" onclick="onShowRelevantInfo()">Show Relevant Information</button>
