@@ -31,7 +31,7 @@ function fillProductIdList() {
         var xmlData = '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false"><entity name="product"><attribute name="name" />    <attribute name="productid" /><order attribute="name" descending="false" /><filter type="and"><condition attribute="msdyn_fieldserviceproducttype" operator="ne" value="690970002" /> <condition attribute="statecode" operator="eq" value="0" /> <condition attribute="msdyn_fieldserviceproducttype" operator="not-null" /> </filter> </entity> </fetch>';
 
         ProductList.empty();
-        ProductList.append("<option>&lt;&nbsp; Select a product id that corresponds to image taken...&nbsp;&gt;</option>");
+        ProductList.append("<option>Select a product id that corresponds to image taken...</option>");
 
         //TESTING
         //ProductList.append("<option>I2CS</option>");
@@ -64,6 +64,8 @@ function onAddToDB() {
     // 2. try to create tag for this product. it will fail if it exists already
     // 3. use GetTags to find id for created tag 
     // 4. add image with this tag
+
+    startSpinner();
 
     // 1.
     var selectedProduct = $("#ProductList").val();
@@ -108,6 +110,7 @@ function onAddToDB() {
         }
 
         function tagsReceiveError() {
+            stopSpinner();
             MobileCRM.bridge.alert("An error occurred when retrieving image tags!");
         }
 
@@ -154,7 +157,8 @@ function onAddToDB() {
         //MobileCRM.bridge.alert("OK: image added");
         $("#AddToDB").css('display', 'none');
         $("#ImageAddedStatus").css('display', 'block');
-
+        //$("#ImageAddedStatus").scrollIntoView();
+        
         var oReq = new XMLHttpRequest();
         oReq.onload = trainProject;
         oReq.onerror = trainProjectError;
@@ -166,6 +170,7 @@ function onAddToDB() {
     }
 
     function imageAddError() {
+        stopSpinner();
         MobileCRM.bridge.alert("An error occurred when trying to add image to the database!");
     }
 
@@ -199,14 +204,18 @@ function onAddToDB() {
             if (result.Code && result.Code == "BadRequestTrainingValidationFailed") 
             {
                 $("#ProjectTrainError").css('display', 'block');
+                //$("#ProjectTrainError").scrollIntoView();
                 $("#ProjectTrainOK").css('display', 'none');
+                stopSpinner();
+                
             } 
             else
             if (result.Status != "" && result.Id) {
 
                 $("#ProjectTrainError").css('display', 'none');
                 $("#ProjectTrainOK").css('display', 'block');
-                   
+                //$("#ProjectTrainOK").scrollIntoView();
+                
                 //a bit problematic is that we cannot call this until the iteration has been trained. on the other hand, 
                 //there is no easy way apart from polling to find out when iteration is trained. 
                 //quick workaround: wait 12 sec.
@@ -219,6 +228,7 @@ function onAddToDB() {
     }
 
     function trainProjectError() {
+        stopSpinner();
         MobileCRM.bridge.alert(this.responseText);        
     }
 
@@ -255,11 +265,15 @@ function onAddToDB() {
             //MobileCRM.bridge.alert(responseText);
 
             //ALL DONE
+            //$("#UpdateIterationOK").scrollIntoView();
+            stopSpinner();            
             $("#UpdateIterationOK").css('display', 'block');
+            scrollIntoView("UpdateIterationOK");
         }
     }
 
     function updateIterationError() {
+        stopSpinner();
         MobileCRM.bridge.alert(this.responseText);        
     }
 
@@ -331,7 +345,10 @@ function onTakePhoto() {
                         var imgElement = document.getElementById(picturelid);
                         if (imgElement)
                             imgElement.src = fileInfo.filePath;
-                        sendToCustomVision(data);
+                        {
+                            startSpinner();
+                            sendToCustomVision(data);
+                        }
 
                     }, MobileCRM.bridge.alert);
                 } else
@@ -342,19 +359,77 @@ function onTakePhoto() {
 
 function handleNoRecognition() {
     //enable the div frame for sumbitting image to custom vision for learning
+    stopSpinner();
     $("#AddToDB").css('display', 'block');
     $("#PostRecognitionActions").css('display', 'none');
     // FILL the product ID list to choose from for tagging 
     fillProductIdList();
+    scrollIntoView("AddToDB");
+       
 }
 
 function handleSuccessfulRecognition(product, probability) {
     //enable the div frame that has selector for further actions based on successful recognition result
+    stopSpinner();
     $("#AddToDB").css('display', 'none');
     $("#PostRecognitionActions").css('display', 'block');
     showMessageList("Found with item number " + product + " - Probability " + probability.toFixed(2) * 100 + "%");
+    //$("#PostRecognitionActions").scrollIntoView();
+
+    scrollIntoView("PostRecognitionActions");
 }
 
+var spinner;
+
+function stopSpinner()
+{
+    if (spinner)
+        {
+            spinner.stop();
+            spinner = null;
+        }
+    
+    var element = document.getElementById('imageplaceholder');
+    element.style.opacity = "1";
+
+}
+function startSpinner() {
+    var element = document.getElementById('imageplaceholder');
+    element.style.opacity = "0.2";
+
+    var target =  document.getElementById('RecognitionSpinner');
+
+    var opts = {
+        lines: 11, // The number of lines to draw
+        length: 0, // The length of each line
+        width: 37, // The line thickness
+        radius: 74, // The radius of the inner circle
+        scale: 0.35, // Scales overall size of the spinner
+        corners: 1, // Corner roundness (0..1)
+        color: '#0080ff', // CSS color or array of colors
+        fadeColor: 'transparent', // CSS color or array of colors
+        opacity: 0, // Opacity of the lines
+        rotate: 6, // The rotation offset
+        direction: 1, // 1: clockwise, -1: counterclockwise
+        speed: 0.7, // Rounds per second
+        trail: 54, // Afterglow percentage
+        fps: 20, // Frames per second when using setTimeout() as a fallback in IE 9
+        zIndex: 2e9, // The z-index (defaults to 2000000000)
+        className: 'spinner', // The CSS class to assign to the spinner
+        top: '52%', // Top position relative to parent
+        left: '50%', // Left position relative to parent
+        shadow: "none", // Box-shadow for the lines
+        position: 'absolute' // Element positioning
+    };
+
+    if (spinner) {
+        spinner.stop();
+        spinner = null;
+    }
+    else {
+        spinner = new Spinner(opts).spin(target);
+    }
+}
 
 function sendToCustomVision(data) {
     MobileCRM.UI.EntityForm.requestObject(
@@ -430,3 +505,19 @@ function b64toBlob(b64Data, contentType, sliceSize) {
     });
     return blob;
 }
+
+function scrollIntoView(elname)
+{
+    window.scroll(0,findPos(document.getElementById(elname)));
+}
+
+function findPos(obj) {
+    var curtop = 0;
+    if (obj.offsetParent) {
+        do {
+            curtop += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+    return [curtop];
+    }
+}
+
