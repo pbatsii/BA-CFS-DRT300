@@ -63,61 +63,47 @@ select::-ms-expand{
     display: none;
 }
 
-  .btn-2 {
-    letter-spacing: 0;
+.button__holder{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a1a1a;
+    &:after{
+        content: "";
+        position: absolute;
+        z-index: 0;
+        top: 0; right: 0; bottom: 0; left: 0;
+        background: rgba(#1a1a1a, 0.7);
+    }
+    h2{
+        margin: {right: 1em;}
+        text-align: center;
+        color: #8A3B58;
+    }
 }
-
-.btn-2:hover,
-.btn-2:active {
-  letter-spacing: 5px;
+.plus{
+    position: relative;
+    z-index: 1;
+    width: 80px;
+    height: 80px;
+    color: #1a1a1a;
+    background: #ed1c5b;
+    border-radius: 50%;
+    border: none;
+    transition: box-shadow 400ms cubic-bezier(.2,0,.7,1), transform 200ms cubic-bezier(.2,0,.7,1);
+    &:after{
+        content: "O";
+        font-size: 2.5em;
+        line-height: 1.1em;
+    }
+    &:hover{
+        transform: rotate(45deg);
+        box-shadow: 0 0 1px 15px rgba(#8A3B58, 0.4),
+        0 0 1px 30px rgba(#8A3B58, 0.1),
+        0 0 1px 45px rgba(#8A3B58, 0.1);
+    }
 }
-
-.btn-2:after,
-.btn-2:before {
-  backface-visibility: hidden;
-  border: 1px solid rgba(#fff, 0);
-  bottom: 0px;
-  content: " ";
-  display: block;
-  margin: 0 auto;
-  position: relative;
-  transition: all 280ms ease-in-out;
-  width: 0;
-}
-
-.btn-2:hover:after,
-.btn-2:hover:before {
-  backface-visibility: hidden;
-  border-color: #fff;
-  transition: width 350ms ease-in-out;
-  width: 70%;
-}
-
-.btn-2:hover:before {
-  bottom: auto;
-  top: 0;
-  width: 70%;
-}
-
-
-
-.btn-5 {
-	border: 0 solid;
-	box-shadow: inset 0 0 20px rgba(255, 255, 255, 0);
-	outline: 1px solid;
-	outline-color: rgba(255, 255, 255, .5);
-	outline-offset: 0px;
-	text-shadow: none;
-	transition: all 1250ms cubic-bezier(0.19, 1, 0.22, 1);
-  } 
-
-  .btn-5:hover {
-	border: 1px solid;
-	box-shadow: inset 0 0 20px rgba(255, 255, 255, .5), 0 0 20px rgba(255, 255, 255, .2);
-	outline-color: rgba(255, 255, 255, 0);
-	outline-offset: 15px;
-	text-shadow: 1px 1px 2px #427388; 
-  }
-
-
-  

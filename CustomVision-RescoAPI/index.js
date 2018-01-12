@@ -16,6 +16,8 @@ var REQUEST_TRAINIMAGE = "images";
 var REQUEST_TRAINPROJECT = "train";
 var REQUEST_UPDATEITERATION = "iterations";
 
+var ITERATION_SETDEFAULT_POLLING_TIMEOUT = 1000;
+
 function showMessageList(msg) {
     var RecogResult = $("#RecognitionResult");
     RecogResult.append(msg);
@@ -209,8 +211,8 @@ function onAddToDB() {
                 //there is no easy way apart from polling to find out when iteration is trained. 
                 //quick workaround: wait 12 sec.
                 setTimeout(function() {
-                    setIterationAsDefault(result);               
-                }, 12000);
+                    setIterationAsDefault(result.Id);               
+                }, ITERATION_SETDEFAULT_POLLING_TIMEOUT);
                 
             }
         }
@@ -220,32 +222,41 @@ function onAddToDB() {
         MobileCRM.bridge.alert(this.responseText);        
     }
 
-    function setIterationAsDefault(result)
+    function setIterationAsDefault(iteration_id)
     {
-        //MobileCRM.bridge.alert("project training status: " + result.Status + "; Id:" + result.Id);
-
         var request = {
             "IsDefault" : true
         };
 
         //set the iteration as default
         var oReq = new XMLHttpRequest();
-        oReq.onload = updateIteration;
+        oReq.onload = function() {updateIteration(iteration_id, this.responseText);}
         oReq.onerror = updateIterationError;
-        var URL = TRAINING_URL + "/" + REQUEST_UPDATEITERATION + "/" + result.Id;
+        var URL = TRAINING_URL + "/" + REQUEST_UPDATEITERATION + "/" + iteration_id;
         oReq.open('PATCH', URL, true);
         oReq.setRequestHeader('Training-key', TRAINING_KEY);
         oReq.setRequestHeader('Content-Type', 'application/json');
         oReq.send(JSON.stringify(request));
-
-        //MobileCRM.bridge.alert(URL);
-        //MobileCRM.bridge.alert(JSON.stringify(request));
-
     }
 
-    function updateIteration() {
-        //MobileCRM.bridge.alert(this.responseText);
-        $("#UpdateIterationOK").css('display', 'block');
+    function updateIteration(iteration_id, responseText) {
+        var response = JSON.parse(responseText);
+        
+        if (response.Code && response.Code == "BadRequestIterationIsNotTrained")
+        {
+            //repeat attempt in some seconds if iteration is still not trained
+            setTimeout(function() {
+                setIterationAsDefault(iteration_id);               
+            }, ITERATION_SETDEFAULT_POLLING_TIMEOUT);    
+        }
+        else
+        if (response.Status == "Completed" && response.IsDefault == true)
+        {
+            //MobileCRM.bridge.alert(responseText);
+
+            //ALL DONE
+            $("#UpdateIterationOK").css('display', 'block');
+        }
     }
 
     function updateIterationError() {
@@ -262,6 +273,40 @@ function onTakePhoto() {
 
     //TESTING
     //handleNoRecognition();
+
+    /*
+    var iteration_id = "8ca90b18-637b-4c8e-b90f-e6a62239fcf5";
+   
+    var request = {
+        "IsDefault" : true
+    };
+
+    //set the iteration as default
+    var oReq = new XMLHttpRequest();
+    
+    oReq.onload = function() {updateIteration(iteration_id, this.responseText);};
+    //oReq.onload = updateIteration(iteration_id);
+    oReq.onerror = updateIterationError;
+    var URL = TRAINING_URL + "/" + REQUEST_UPDATEITERATION + "/" + iteration_id;
+    oReq.open('PATCH', URL, true);
+    oReq.setRequestHeader('Training-key', TRAINING_KEY);
+    oReq.setRequestHeader('Content-Type', 'application/json');
+    oReq.send(JSON.stringify(request));
+
+    function updateIteration(iter, responseText)
+    {
+        var x = iter;
+        var y = responseText;
+        var z = this.respose;
+    }
+
+    function updateIterationError()
+    {
+
+    }
+
+*/
+
     // /TESTING 
 
     // hiding sections that don't make sense at this point
