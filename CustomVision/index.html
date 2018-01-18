@@ -39,25 +39,22 @@
 
 		<div class="section" style="display:none" id="PostRecognitionActions">
 			<ul id="RecognitionResult" class="btn btn-lg"> </ul>
-			<button class="btn btn-lg btn-primary" id="showRelevantInfo" onclick="onShowRelevantInfo()">Show Relevant Information</button>
+			<button class="btn btn-lg btn-primary" id="showRelevantInfo" onclick="onShowRelevantInfo()">Open Product</button>
 			<button class="btn btn-lg btn-primary" id="createPO" onclick="onCreatePurchaseOrder()">Create Purchase Order</button>
+			<div><h3>Opening Product form in &nbsp<h3 id="productFormOpenCounter"></h3><h3>&nbsp seconds...</h3></div>
 		</div>
 
 
 		<div class="section" id="AddToDB" style="display:none">
-
 			<ul id="AddToDBPrompt" class="btn btn-lg"> Image is not recognized. Please select what's on the image and submit to server for machine to learn!
 			</ul>
-
-			<div class="borderMethod">
-				<select id="ProductList" class="btn btn-lg">
-					<option>&lt;&nbsp; Select a product id that corresponds to image taken...&nbsp;&gt;</option>
-				</select>
+		
+			<div class = "borderMethod">
+			<select id="ProductList" class="btn btn-lg">
+			</select>
 			</div>
-
-
+		
 			<button class="btn btn-lg btn-primary" id="addToDBbutton" onclick="onAddToDB()">Add this asset image to DB</button>
-
 		</div>
 
 		<div id="ImageAddedStatus" style="display:none">
@@ -67,15 +64,16 @@
 		<div id="ProjectTrainingStatus">
 			<ul id="ProjectTrainOK" class="btn btn-lg" style="display:none"> Model re-training has been triggered. 
 			</ul>
-			<ul id="ProjectTrainError" class="btn btn-lg" style="display:none"> Model couldn't be retrained. Make sure you have enough image data (5 images for one new product)! .. Also there is a limitation
-				for 20 iterations in the preview mode.
+			<ul id="ProjectTrainError" class="btn btn-lg" style="display:none"> Model couldn't be retrained. Possible reasons: 1. min.5 images for a product required 2. Max. 20 iterations in the preview mode.
 			</ul>
-			<ul id="UpdateIterationOK" class="btn btn-lg" style="display:none"> Iteration set as default.
-				All done! Next time this asset will be recognized.
-			</ul>
-
+			<h3 id="UpdateIterationOK"  style="display:none"> Success: model training completed!</h3>	
+			
 		</div>
+		<div>
+			<ul id="KBList" class="btn btn-lg" style="display:none">  
 
+			</ul>
+		</div>
 
 
 	</div>

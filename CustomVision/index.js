@@ -1,15 +1,19 @@
-var picturelid = "imageplaceholder";
-var recognition_threshold = 0.80;
-//blob to hold the currently used image 
-var current_image_blob;
-
+//CHANGE THE BELOW 5 VALUES FOR OWN CUSTOMVISION.AI ACCOUNT
+//***************************** */
 var TRAINING_URL = "https://southcentralus.api.cognitive.microsoft.com/customvision/v1.2/Training/projects/734e7d96-ba47-40e1-85bd-b73f3458bdd3";
 var PREDICTION_URL = 'https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/734e7d96-ba47-40e1-85bd-b73f3458bdd3/image';
 
 var TRAINING_KEY = "aba0e94484ad4934b6d9310ea468b666";
 var PREDICTION_KEY = "cf000a1bde794e00a6ae1b703cb9f568";
-
 var PROJECTID = "734e7d96-ba47-40e1-85bd-b73f3458bdd3";
+//***************************** */
+
+var picturelid = "imageplaceholder";
+var recognition_threshold = 0.80;
+//blob to hold the currently used image 
+var current_image_blob;
+var recognized_product = {name:"", id:""};
+var auto_product_timer;
 
 var REQUEST_TAGS = "tags";
 var REQUEST_TRAINIMAGE = "images";
@@ -20,8 +24,71 @@ var ITERATION_SETDEFAULT_POLLING_TIMEOUT = 1000;
 
 function showMessageList(msg) {
     var RecogResult = $("#RecognitionResult");
+    RecogResult.empty();
     RecogResult.append(msg);
     RecogResult.append("\n");
+}
+
+
+function fillRelevantKBList()
+{
+
+    $("#KBList").css('display', 'none');
+
+    var KBList = $("#KBList");
+
+    if (KBList) {
+        var xmlData = '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false"><entity name="product"><attribute name="name" />    <attribute name="productid" /><order attribute="name" descending="false" /><filter type="and"><condition attribute="msdyn_fieldserviceproducttype" operator="ne" value="690970002" /> <condition attribute="statecode" operator="eq" value="0" /> <condition attribute="msdyn_fieldserviceproducttype" operator="not-null" /> </filter> </entity> </fetch>';              
+
+        KBList.empty();
+        //KBList.append("<option>Select a product id that corresponds to image taken...</option>");
+
+        //TESTING
+        //ProductList.append("<option>I2CS</option>");
+        //ProductList.append("<option>Azure MXChip</option>");
+        //ProductList.append("<option>Particle Electron UBlox G350</option>");
+        // /TESTING
+
+        /*
+        MobileCRM.FetchXml.Fetch.executeFromXML(xmlData, function (result) {
+                for (var i in result) {
+                    var props = result[i];
+                    ProductList.append('<option value=' + '"' + props[0] + '">' + props[0] + "</option>");
+                }
+
+            },
+            function (err) {
+                alert('Error fetching products: ' + err);
+            },
+            null
+        );
+        */
+    }
+}
+
+function findProductIdbyName(productName) {
+    //trying another way of accessing Resco data ..
+    var entity = new MobileCRM.FetchXml.Entity("product");
+    entity.addAttribute("productid");
+    entity.addAttribute("name");
+    var filter = new MobileCRM.FetchXml.Filter();
+    filter.where("name", "like", productName + "%");
+    entity.filter = filter;
+    var fetch = new MobileCRM.FetchXml.Fetch(entity);
+
+    fetch.execute(
+        "Array",  // Take the results as an array of arrays with field values
+        function (result) {
+            for (var i in result) {
+                var product = result[i];
+                recognized_product.id = product[0];
+            }
+        },
+        function (err) {
+            MobileCRM.bridge.alert("Error fetching products: " + err);
+        },
+        null
+    );
 }
 
 function fillProductIdList() {
@@ -31,18 +98,14 @@ function fillProductIdList() {
         var xmlData = '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false"><entity name="product"><attribute name="name" />    <attribute name="productid" /><order attribute="name" descending="false" /><filter type="and"><condition attribute="msdyn_fieldserviceproducttype" operator="ne" value="690970002" /> <condition attribute="statecode" operator="eq" value="0" /> <condition attribute="msdyn_fieldserviceproducttype" operator="not-null" /> </filter> </entity> </fetch>';
 
         ProductList.empty();
-        ProductList.append("<option>Select a product id that corresponds to image taken...</option>");
-
-        //TESTING
-        //ProductList.append("<option>I2CS</option>");
-        //ProductList.append("<option>Azure MXChip</option>");
-        //ProductList.append("<option>Particle Electron UBlox G350</option>");
-        // /TESTING
-
+        
         MobileCRM.FetchXml.Fetch.executeFromXML(xmlData, function (result) {
                 for (var i in result) {
                     var props = result[i];
-                    ProductList.append('<option value=' + '"' + props[0] + '">' + props[0] + "</option>");
+                    //0 is the product name
+                    //1 is the product id <======= this should be the tag of the image as sent to custom vision
+                    var newOption = '<option value="' + props[1] + '">' + props[0] + '</option>';
+                    ProductList.append(newOption);
                 }
 
             },
@@ -64,11 +127,14 @@ function onAddToDB() {
     // 2. try to create tag for this product. it will fail if it exists already
     // 3. use GetTags to find id for created tag 
     // 4. add image with this tag
+    // 5. train project
+    // 6. fetch the latest iteration and wait until its trained
+    // 7. set the last iteration as default
 
     startSpinner();
 
-    // 1.
-    var selectedProduct = $("#ProductList").val();
+    // 1. taking the CV tag from text of selected product == product NAME
+    var selectedProduct = $("#ProductList option:selected").text();
     var tagId;
 
     // 2. create tag
@@ -81,9 +147,6 @@ function onAddToDB() {
     oReq.open('POST', URL, true);
     oReq.setRequestHeader('Training-Key', TRAINING_KEY);
     oReq.send();
-
-    //TESTING
-    //MobileCRM.bridge.alert("OK: sent create tag");
 
     //3. 
     function tagAddError() {
@@ -102,9 +165,6 @@ function onAddToDB() {
         oReq.setRequestHeader('Training-key', TRAINING_KEY);
         oReq.send();
 
-        //TESTING
-        //MobileCRM.bridge.alert("OK: sent get tags");
-
         function tagsReceived() {
             handleListOfTags(JSON.parse(this.responseText));
         }
@@ -118,9 +178,6 @@ function onAddToDB() {
 
 
     function handleListOfTags(result) {
-
-        //TESTING
-        //MobileCRM.bridge.alert("OK: handleListOfTags");
 
         var tagId = "";
         if (result.Tags) {
@@ -140,9 +197,6 @@ function onAddToDB() {
                 oReq.setRequestHeader('Training-Key', TRAINING_KEY);
                 oReq.setRequestHeader('Content-Type', 'application/octet-stream');
                 oReq.send(current_image_blob, 'image/png');
-
-                //TESTING
-                //MobileCRM.bridge.alert("OK: add image sent");
 
             } else
                 MobileCRM.bridge.alert("An error occurred when trying to retrieve tags from CustomVision! No matched tag found.");
@@ -283,46 +337,7 @@ function onAddToDB() {
 }
 
 
-function onTakePhoto() {
-
-    //TESTING
-    //handleNoRecognition();
-
-    /*
-    var iteration_id = "8ca90b18-637b-4c8e-b90f-e6a62239fcf5";
-   
-    var request = {
-        "IsDefault" : true
-    };
-
-    //set the iteration as default
-    var oReq = new XMLHttpRequest();
-    
-    oReq.onload = function() {updateIteration(iteration_id, this.responseText);};
-    //oReq.onload = updateIteration(iteration_id);
-    oReq.onerror = updateIterationError;
-    var URL = TRAINING_URL + "/" + REQUEST_UPDATEITERATION + "/" + iteration_id;
-    oReq.open('PATCH', URL, true);
-    oReq.setRequestHeader('Training-key', TRAINING_KEY);
-    oReq.setRequestHeader('Content-Type', 'application/json');
-    oReq.send(JSON.stringify(request));
-
-    function updateIteration(iter, responseText)
-    {
-        var x = iter;
-        var y = responseText;
-        var z = this.respose;
-    }
-
-    function updateIterationError()
-    {
-
-    }
-
-*/
-
-    // /TESTING 
-
+function onTakePhoto() {  
     // hiding sections that don't make sense at this point
     $("#AddToDB").css('display', 'none');
     $("#ImageAddedStatus").css('display', 'none');
@@ -364,19 +379,40 @@ function handleNoRecognition() {
     $("#PostRecognitionActions").css('display', 'none');
     // FILL the product ID list to choose from for tagging 
     fillProductIdList();
-    scrollIntoView("AddToDB");
-       
+    scrollIntoView("AddToDB");     
 }
 
-function handleSuccessfulRecognition(product, probability) {
+function handleSuccessfulRecognition(productname, probability) {
     //enable the div frame that has selector for further actions based on successful recognition result
     stopSpinner();
     $("#AddToDB").css('display', 'none');
     $("#PostRecognitionActions").css('display', 'block');
-    showMessageList("Found with item number " + product + " - Probability " + probability.toFixed(2) * 100 + "%");
+    showMessageList("Recognized: Product '" + productname + "' - Probability " + probability.toFixed(2)*100 + "%");
     //$("#PostRecognitionActions").scrollIntoView();
-
     scrollIntoView("PostRecognitionActions");
+    recognized_product.name = productname;
+    findProductIdbyName(productname); // need ID to open Product form
+    
+    auto_product_timer = setTimeout(function() {
+        waitProductRecognized(2);               
+    }, 1000);
+}
+
+function waitProductRecognized(cycle_counter)
+{
+    if (cycle_counter > 0)
+    {
+        $("#productFormOpenCounter").text(cycle_counter);
+
+        setTimeout(function() {
+            waitProductRecognized(cycle_counter-1);               
+        }, 1000);
+            
+    }
+    else
+    {
+        onShowRelevantInfo();   
+    }
 }
 
 var spinner;
@@ -441,18 +477,30 @@ function sendToCustomVision(data) {
 
             function reqListener() {
                 var result = JSON.parse(this.responseText);
-                var highestValueProduct = "";
-                var highestValue = 0;
+                var productName = "";
+                var probability = 0;
 
-                for (i = 0; i < result.Predictions.length; i++) {
-                    if (parseFloat(result.Predictions[i].Probability) > highestValue) {
-                        highestValueProduct = result.Predictions[i].Tag;
-                        highestValue = parseFloat(result.Predictions[i].Probability);
+                /*for (var prediction in result.Predictions)
+                {
+                    if (parseFloat(prediction.Probability) > probability)
+                    {
+                        //assuming the tags correspond to PRODUCT NAME
+                        productName = prediction.Tag;
+                        probability = parseFloat(prediction.Probability);                        
                     }
                 }
+                */
+                for (i = 0; i < result.Predictions.length; i++) {
+                    if (parseFloat(result.Predictions[i].Probability) > probability) {
+                        //assuming the tags correspond to PRODUCT NAME
+                        productName = result.Predictions[i].Tag;
+                        probability = parseFloat(result.Predictions[i].Probability);
+                    }
+                }
+                
 
-                if (highestValue > recognition_threshold)
-                    handleSuccessfulRecognition(highestValueProduct, highestValue);
+                if (probability > recognition_threshold)
+                    handleSuccessfulRecognition(productName, probability);
                 else
                     handleNoRecognition();
             }
@@ -479,6 +527,39 @@ function sendToCustomVision(data) {
         null
     );
 }
+
+
+function onShowRelevantInfo() {
+    clearInterval(auto_product_timer);
+    if ( recognized_product.id) {
+        try {
+
+            MobileCRM.bridge.alert("Opening Product dialog for Product " + recognized_product.name + " with ID of " + recognized_product.id);
+            MobileCRM.UI.FormManager.showEditDialog("product", recognized_product.id);
+         
+/*
+            productId = "MiniESP8266";
+            MobileCRM.bridge.alert("Opening Product dialog for Product : " + productId);
+            MobileCRM.UI.FormManager.showEditDialog("product", productId);
+         
+            productId = "261cdb2a-21c7-e611-80e9-5065f38b1641";
+            MobileCRM.bridge.alert("Opening Product dialog for Product : " + productId);
+            MobileCRM.UI.FormManager.showEditDialog("product", productId);
+  */
+            // Show all associated contact at the begining;
+            //document.location.reload(true);
+        }
+        catch (err) {
+            MobileCRM.bridge.alert("Exception : " + err);
+        }
+    }
+    else
+        MobileCRM.bridge.alert("No product has been yet recognized!");
+
+}
+
+
+
 
 function b64toBlob(b64Data, contentType, sliceSize) {
     contentType = contentType || '';
