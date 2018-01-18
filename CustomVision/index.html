@@ -41,12 +41,12 @@
 			<ul id="RecognitionResult" class="btn btn-lg"> </ul>
 			<button class="btn btn-lg btn-primary" id="showRelevantInfo" onclick="onShowRelevantInfo()">Open Product</button>
 			<button class="btn btn-lg btn-primary" id="createPO" onclick="onCreatePurchaseOrder()">Create Purchase Order</button>
-			<div><h3>Opening Product form in &nbsp<h3 id="productFormOpenCounter"></h3><h3>&nbsp seconds...</h3></div>
+			<div id="productFormOpenCounterDiv"><h3 style="display:inline-block;">Opening Product Form:&nbsp </h3><h3 id="productFormOpenCounter" style="display:inline-block;"></h3></div>
 		</div>
 
 
 		<div class="section" id="AddToDB" style="display:none">
-			<ul id="AddToDBPrompt" class="btn btn-lg"> Image is not recognized. Please select what's on the image and submit to server for machine to learn!
+			<ul id="AddToDBPrompt" class="btn btn-lg"> Image is not recognized. Please select what's on the image!
 			</ul>
 		
 			<div class = "borderMethod">
@@ -54,7 +54,7 @@
 			</select>
 			</div>
 		
-			<button class="btn btn-lg btn-primary" id="addToDBbutton" onclick="onAddToDB()">Add this asset image to DB</button>
+			<button class="btn btn-lg btn-primary" id="addToDBbutton" onclick="onAddToDB()">Add and train!</button>
 		</div>
 
 		<div id="ImageAddedStatus" style="display:none">
@@ -64,7 +64,7 @@
 		<div id="ProjectTrainingStatus">
 			<ul id="ProjectTrainOK" class="btn btn-lg" style="display:none"> Model re-training has been triggered. 
 			</ul>
-			<ul id="ProjectTrainError" class="btn btn-lg" style="display:none"> Model couldn't be retrained. Possible reasons: 1. min.5 images for a product required 2. Max. 20 iterations in the preview mode.
+			<ul id="ProjectTrainError" class="btn btn-lg" style="display:none"> Train error: make sure there are at least 5 images for each product! Max. iterations: 20 
 			</ul>
 			<h3 id="UpdateIterationOK"  style="display:none"> Success: model training completed!</h3>	
 			

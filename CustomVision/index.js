@@ -359,10 +359,12 @@ function onTakePhoto() {
                     MobileCRM.Application.readFileAsBase64(fileInfo.filePath, function (data) {
                         var imgElement = document.getElementById(picturelid);
                         if (imgElement)
-                            imgElement.src = fileInfo.filePath;
                         {
+                            imgElement.src = fileInfo.filePath;
+                            scrollIntoView(picturelid);
                             startSpinner();
                             sendToCustomVision(data);
+                            scrollIntoView(picturelid);
                         }
 
                     }, MobileCRM.bridge.alert);
@@ -392,18 +394,16 @@ function handleSuccessfulRecognition(productname, probability) {
     scrollIntoView("PostRecognitionActions");
     recognized_product.name = productname;
     findProductIdbyName(productname); // need ID to open Product form
-    
-    auto_product_timer = setTimeout(function() {
-        waitProductRecognized(2);               
-    }, 1000);
+    waitProductRecognized(3);               
 }
 
 function waitProductRecognized(cycle_counter)
 {
-    if (cycle_counter > 0)
+    if (cycle_counter >= 0)
     {
+        $("#productFormOpenCounterDiv").css('display', 'block');
         $("#productFormOpenCounter").text(cycle_counter);
-
+        //$("#productFormOpenCounter").append("...");
         setTimeout(function() {
             waitProductRecognized(cycle_counter-1);               
         }, 1000);
@@ -411,6 +411,7 @@ function waitProductRecognized(cycle_counter)
     }
     else
     {
+        $("#productFormOpenCounterDiv").css('display', 'none');
         onShowRelevantInfo();   
     }
 }
@@ -529,25 +530,54 @@ function sendToCustomVision(data) {
 }
 
 
+function onCreatePurchaseOrder() {
+    clearTimeout(auto_product_timer);
+    if (recognized_product.id) {
+        try {
+            //MobileCRM.bridge.alert("Opening Product dialog for Product " + recognized_product.name + " with ID of " + recognized_product.id);
+            MobileCRM.UI.EntityForm.requestObject(
+                function (entityForm) {
+                    /// <param name="entityForm" type="MobileCRM.UI.EntityForm"/>
+                    var editedAcount = entityForm.entity;
+                    var target = new MobileCRM.Reference(editedAcount.entityName, editedAcount.id);
+                    var relationShip = new MobileCRM.Relationship("parentcustomerid", target, null, null);
+                    MobileCRM.UI.FormManager.showNewDialog(
+                        "purchaseorder",
+                        relationShip, {
+                            "@initialize": { // force the form to pre-fill certain fields
+                                telephone1: editedAcount.properties.telephone1, // new contact will have the same phone as account
+                                address1_line1: editedAcount.properties.address1_line1, // ... and address too
+                                address1_city: editedAcount.properties.address1_city
+                            },
+                            // These props will be passed to all iFrames on the contact form which is being opened
+                            iFrameOptions: {
+                                doNotRequirePhone: true
+                            }
+                        }
+                    );
+                },
+                MobileCRM.bridge.alert
+            );
+
+            MobileCRM.UI.FormManager.showNewDialog("purchaseorder", recognized_product.id);
+        }
+        catch (err) {
+            MobileCRM.bridge.alert("Exception : " + err);
+        }
+
+    }
+    else
+        MobileCRM.bridge.alert("No product has been yet recognized!");
+}
+
 function onShowRelevantInfo() {
-    clearInterval(auto_product_timer);
+    clearTimeout(auto_product_timer);
     if ( recognized_product.id) {
         try {
 
-            MobileCRM.bridge.alert("Opening Product dialog for Product " + recognized_product.name + " with ID of " + recognized_product.id);
-            MobileCRM.UI.FormManager.showEditDialog("product", recognized_product.id);
-         
-/*
-            productId = "MiniESP8266";
-            MobileCRM.bridge.alert("Opening Product dialog for Product : " + productId);
-            MobileCRM.UI.FormManager.showEditDialog("product", productId);
-         
-            productId = "261cdb2a-21c7-e611-80e9-5065f38b1641";
-            MobileCRM.bridge.alert("Opening Product dialog for Product : " + productId);
-            MobileCRM.UI.FormManager.showEditDialog("product", productId);
-  */
-            // Show all associated contact at the begining;
-            //document.location.reload(true);
+            //MobileCRM.bridge.alert("Opening Product dialog for Product " + recognized_product.name + " with ID of " + recognized_product.id);
+            
+            MobileCRM.UI.FormManager.showEditDialog("product", recognized_product.id);       
         }
         catch (err) {
             MobileCRM.bridge.alert("Exception : " + err);
@@ -557,7 +587,6 @@ function onShowRelevantInfo() {
         MobileCRM.bridge.alert("No product has been yet recognized!");
 
 }
-
 
 
 
