@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>sparepart finder</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="initial-scale=1, user-scalable=no" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="http://pingendo.github.io/pingendo-bootstrap/themes/default/bootstrap.css" rel="stylesheet" type="text/css">
+
+	<script src="JSBridge.js"></script>
+	<script src="jquery-3.2.1.min.js"></script>
+	<script src="spinner.js" type="text/javascript"></script>
+	<script src="index.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="listview.css">
+
+	<!-- Include Bootstrap CDN CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
+	 crossorigin="anonymous">
+
+	<!-- Include Bootstrap Fontawesome CDN CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
+
+	<!-- Include Bootsrap CDN JS -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	 crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	 crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
+	 crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<!-- Main Navigation -->
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<img class="img-responsive" src=" https://overview.azureedge.net/cdn/Azure%20Cognitive%20Services.png" width="50px" height="50px"></img>
+		<h4 class="h4logo">Powered by Microsoft Custom Vision</h4>
+	</nav>
+
+	<!-- Main Container -->
+	<div class="container">
+
+		<!-- 1=Buttons -->
+		<div class="row">
+			<div class="col-md-5 greenbox-one">
+				<div class="greenbox">
+					<div class="icongreenbox">
+						<i class="icon fa fa-cloud-upload" style="font-size:60px;"></i>
+					</div>
+					<p class="subtitle">Product recognition</p>
+					<button type="button" class="btn btn-secondary btn-lg custom-btngreenbox" id="myButton" onclick="onTakePhoto()">Upload Product</button>
+				</div>
+			</div>
+
+			<div class="col-md-5 greenbox-two">
+				<div class="greenbox">
+					<div class="icongreenbox">
+						<i class="icon fa fa-plus" style="font-size:60px;"></i>
+					</div>
+					<p class="subtitle">Create purchase order</p>
+					<button type="button" class="btn btn-secondary btn-lg custom-btngreenbox" id="createPO" onclick="onCreatePurchaseOrder()">Create order</button>
+				</div>
+			</div>
+
+			<div class="col-md-5 greenbox-three">
+				<div class="greenbox">
+					<div class="icongreenbox">
+						<i class="icon fa fa-info" style="font-size:60px;"></i>
+					</div>
+					<p class="subtitle">Show relevant information</p>
+					<button type="button" class="btn btn-secondary btn-lg custom-btngreenbox" id="showRelevantInfo" onclick="onShowRelevantInfo()">Show information</button>
+				</div>
+			</div>
+
+			<div class="col-md-5 greenbox-three">
+				<div class="greenbox">
+					<div class="icongreenbox">
+						<i class="icon fa fa-envelope" style="font-size:60px;"></i>
+					</div>
+					<p class="subtitle">Provide feedback</p>
+					<button type="button" class="btn btn-secondary btn-lg custom-btngreenbox">
+						<a href="mailto:#@microsoft.com" class="addlink">E-mail us</A>
+					</button>
+				</div>
+			</div>
+		</div>
+		<!-- End Button Row -->
+
+		<!-- Notifications Row-->
+		<div class="row">
+
+<<<<<<< HEAD:CustomVision-RescoAPI/index.html
+			<!-- Recognition spinner -->
+			<div class="img-responsive">
+				<img id="imageplaceholder" class="img-responsive"></img>
+			</div>
+=======
+		<div class="section" style="display:none" id="PostRecognitionActions">
+			<ul id="RecognitionResult" class="btn btn-lg"> </ul>
+			<button class="btn btn-lg btn-primary" id="showRelevantInfo" onclick="onShowRelevantInfo()">Open Product</button>
+			<button class="btn btn-lg btn-primary" id="createPO" onclick="onCreatePurchaseOrder()">Create Purchase Order</button>
+			<div id="productFormOpenCounterDiv"><h3 style="display:inline-block;">Opening Product Form:&nbsp </h3><h3 id="productFormOpenCounter" style="display:inline-block;"></h3></div>
+		</div>
+>>>>>>> dbda911bed3fce726799a75bec2c26a1c03b95c1:CustomVision/index.html
+
+			<div id="RecognitionSpinner"></div>
+
+<<<<<<< HEAD:CustomVision-RescoAPI/index.html
+			<!-- CORE Notifications -->
+			<div class="col-md-10 notifi">
+
+				<div id="AddToDB" style="display:none">
+
+					<!-- Danger -->
+					<div class="alert alert-danger" role="alert">
+						<li id="AddToDBPrompt">
+							<i class="fa fa-times" style="font-size:14px;"></i> Image is not recognized. Please select what's on the image and submit to server for machine to learn!</li>
+					</div>
+
+					<!-- Option set after danger notification -->
+					<div class="borderMethod">
+						<select id="ProductList" class="btn btn-lg">
+							<option>&lt;&nbsp; Select a product id that corresponds to image taken...&nbsp;&gt;</option>
+						</select>
+					</div>
+
+					<button class="btn btn-lg btn-primary" id="addToDBbutton" onclick="onAddToDB()">Add this asset image to DB</button>
+
+				</div>
+=======
+		<div class="section" id="AddToDB" style="display:none">
+			<ul id="AddToDBPrompt" class="btn btn-lg"> Image is not recognized. Please select what's on the image!
+			</ul>
+		
+			<div class = "borderMethod">
+			<select id="ProductList" class="btn btn-lg">
+			</select>
+			</div>
+		
+			<button class="btn btn-lg btn-primary" id="addToDBbutton" onclick="onAddToDB()">Add and train!</button>
+		</div>
+>>>>>>> dbda911bed3fce726799a75bec2c26a1c03b95c1:CustomVision/index.html
+
+				<!-- Success -->
+				<div id="ImageAddedStatus" class="alert alert-success" role="alert" style="display:none">
+					<li id="AddToDBResult">
+						<i class="fa fa-check" style="font-size:14px;"></i> Asset image has been successfully added to the database.</li>
+				</div>
+
+<<<<<<< HEAD:CustomVision-RescoAPI/index.html
+				<div id="ProjectTrainingStatus">
+
+					<div class="alert alert-success" role="alert" style="display:none">
+						<li id="ProjectTrainOK">
+							<i class="fa fa-check" style="font-size:14px;"></i> Model re-training has been triggered.</li>
+					</div>
+
+					<div class="alert alert-warning" role="alert" style="display:none">
+						<li id="ProjectTrainError">
+							<i class="fa fa-exclamation-triangle" style="font-size:14px;"></i> Model couldn't be retrained. Make sure you have enough image data (5 images for one new product)! .. Also there
+							is a limitation for 20 iterations in the preview mode.
+						</li>
+					</div>
+
+					<div class="alert alert-success" role="alert" style="display:none">
+						<li id="UpdateIterationOK">
+							<i class="fa fa-check" style="font-size:14px;"></i> Iteration set as default. All done! Next time this asset will be recognized.</li>
+					</div>
+
+				</div>
+
+			</div>
+=======
+		<div id="ProjectTrainingStatus">
+			<ul id="ProjectTrainOK" class="btn btn-lg" style="display:none"> Model re-training has been triggered. 
+			</ul>
+			<ul id="ProjectTrainError" class="btn btn-lg" style="display:none"> Train error: make sure there are at least 5 images for each product! Max. iterations: 20 
+			</ul>
+			<h3 id="UpdateIterationOK"  style="display:none"> Success: model training completed!</h3>	
+			
+		</div>
+		<div>
+			<ul id="KBList" class="btn btn-lg" style="display:none">  
+
+			</ul>
+		</div>
+>>>>>>> dbda911bed3fce726799a75bec2c26a1c03b95c1:CustomVision/index.html
+
+		</div>
+		<!-- End Notification Row-->
+
+	</div>
+
+</body>
+
+</html>
+
+
+<!-- transform in new style 
+	<div class="section">
+	
+			<div class="img-responsive">
+				<img id="imageplaceholder" class="img-responsive"></img>
+			</div>
+	
+			<div id="RecognitionSpinner"></div>
+	
+			<div class="section" id="AddToDB" style="display:none">
+	
+				<ul id="AddToDBPrompt" class="btn btn-lg"> Image is not recognized. Please select what's on the image and submit to server for machine to learn!
+				</ul>
+	
+				<div class="borderMethod">
+					<select id="ProductList" class="btn btn-lg">
+						<option>&lt;&nbsp; Select a product id that corresponds to image taken...&nbsp;&gt;</option>
+					</select>
+				</div>
+	
+				<button class="btn btn-lg btn-primary" id="addToDBbutton" onclick="onAddToDB()">Add this asset image to DB</button>
+	
+			</div>
+	
+			<div id="ImageAddedStatus" style="display:none">
+				<ul id="AddToDBResult" class="btn btn-lg"> Asset image has been successfully added to the database. </ul>
+			</div>
+	
+			<div id="ProjectTrainingStatus">
+				<ul id="ProjectTrainOK" class="btn btn-lg" style="display:none"> Model re-training has been triggered.
+				</ul>
+				<ul id="ProjectTrainError" class="btn btn-lg" style="display:none"> Model couldn't be retrained. Make sure you have enough image data (5 images for one new product)! .. Also there is a limitation
+					for 20 iterations in the preview mode.
+				</ul>
+				<ul id="UpdateIterationOK" class="btn btn-lg" style="display:none"> Iteration set as default. All done! Next time this asset will be recognized.
+				</ul>
+	
+			</div>
+		</div> -->

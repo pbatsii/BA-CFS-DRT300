@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>sparepart finder</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="initial-scale=1, user-scalable=no" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="http://pingendo.github.io/pingendo-bootstrap/themes/default/bootstrap.css" rel="stylesheet" type="text/css">
+
+
+	<script src="JSBridge.js"></script>
+	<script src="apitest.js" type="text/javascript"></script>
+		<script src="jquery-3.2.1.min.js"></script>
+
+</head>
+
+<body>
+		<div><h3 style="display:inline-block;">Opening Product form &nbsp <h3 id="productFormOpenCounter" style="display:inline-block;">12</h3><h3 style="display:inline-block;"> seconds...</h3></div>	
+	<div>
+			<h1>KB List should be displayed below:</h1>
+			<input class="input" id="KBArticleId" >KA-01079</input>
+			<ul id="KBList">
+
+
+			</ul>
+			
+			<button class="btn btn-lg btn-primary" id="showRelevantInfo" onclick="onShowRelevantInfo()">Show Relevant Information</button>
+
+			<select id="ProductList" class="btn btn-lg">
+				</select>
+		</div>
+</body>
+
+</html>
